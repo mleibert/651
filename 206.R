@@ -1,3 +1,10 @@
+ab<-read.table("AirfreightBreakage.txt")
+colnames(ab)<-c("Y","X")
+lm(ab$Y~ab$X)
+b1<-4;b0<-10.2
+ablm<-function(X){ X*b1+b0 }
+ab$ei<-ab$Y-ablm(ab$X)
+
 n=nrow(ab);n
 MSE<-sum(ab$ei^2)/(n-2);MSE
 
@@ -28,11 +35,11 @@ cl<-qt(1-alpha,n-2);cl
 
 if( abs(ttest) > cl ) {print("conclude Ha")} else {print("conclude H0")}
 
+dt( 1.81,n-1)
 
 
 
-
-
+summary(lm(ab$Y~ab$X))
 
 
 
