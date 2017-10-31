@@ -1,6 +1,6 @@
 rm(list=ls())
 options(stringsAsFactors = FALSE) 
-options(scipen=999)
+options(scipen=999) 
 
  
 setwd("G:/math/651")
@@ -122,7 +122,68 @@ sum( anova(lm(ps$Y ~  ps$X3+ps$X2 )	) [[2]][1:2])  )/
 
 
 
+influence.measures(lm(ps$Y ~ ps$X3 +ps$X1+ps$X2 ))
 
 
+ps.R2ap<-vector(mode="numeric", length=0)
+ps.counts<-vector(mode="numeric", length=0)
+ps.aic<-vector(mode="numeric", length=0)
+ps.cp<-vector(mode="numeric", length=0)
+ps.press<-vector(mode="numeric", length=0)
+ps.variables<-vector(mode="character", length=0)
+
+ps.p<-ncol(ps)
+ps.n<-nrow(ps)
+
+for(i in 1:(ps.p-1)  ){
+	VIM<-combn( names(ps)[-1],i) 
+		for(j in 1:ncol(VIM) ){
+			level<-VIM[,j]
+			ps.variables<-c(ps.variables,paste(level, collapse = ','))
+			level<-paste("ps$",level,sep="")
+			level<-paste(level, collapse = '+')
+			level<-paste0("ps$Y~",level)
+			
+			ps.R2ap<-c(ps.R2ap,summary( lm(  level ) )$adj.r.squared)
+			ps.counts<-c(ps.counts,i+1)	
+	
+	ps.cp<-c(ps.cp, (-(ps.n-2*(i+1)))+anova(lm(level))[i+1,2]	/
+	( anova( lm(ps$Y~ps$X1+ps$X2+ps$X3 ) )[ps.p,2] / (ps.n-ps.p))  )
+	
+	ps.aic<-c(ps.aic,ps.n*log(anova(lm(level))[i+1,2])-ps.n*log(ps.n)+
+		2*(i+1))
+	
+	ps.press<-c(ps.press,PRESS( lm(level) ))
+				}}
+
+ps.crit<-data.frame(ps.counts,ps.variables,ps.R2ap, ps.aic, ps.cp,ps.press)
+ps.crit[which(ps.crit$ps.R2ap > .6 ),]
+ps.crit[which(	(ps.crit$ps.counts-2) < ps.crit$ps.cp &
+			 ps.crit$ps.cp  < (ps.crit$ps.counts+2)	) , ]
+
+
+plot(ps.crit[,1],ps.crit[,3])
+
+   lines(unique(ps.crit[,1])[1:2], c(
+	max( ps.crit[which(ps.crit[,1]== 2) , 3] ) ,
+	max( ps.crit[which(ps.crit[,1]== 3) , 3] ) ))
+    lines(unique(ps.crit[,1])[2:3], c(
+	max( ps.crit[which(ps.crit[,1] == 3) , 3] ) ,
+	max( ps.crit[which(ps.crit[,1] == 4) , 3] ) )	)
+
+
+
+plot(ps.crit[,1],ps.crit[,4])
+plot(ps.crit[,1],ps.crit[,5])
+plot(ps.crit[,1],ps.crit[,6])
+
+
+  null= lm(Y ~ 1, data=ps)
+full <- (lm(Y~.,ps))
+ step(null, scope=list(lower=null, upper=full), direction="forward")
+
+#with only three X variables, I think the all-possible-regressions procedure
+#would be computationally feasible, and I don't think forward stepwise
+#regression has any advantages here
 
 
