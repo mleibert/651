@@ -134,6 +134,7 @@ ps.variables<-vector(mode="character", length=0)
 
 ps.p<-ncol(ps)
 ps.n<-nrow(ps)
+PRESS<-function (x) {    sum(resid(x)^2/(1 - lm.influence(x)$hat)^2) }  
 
 for(i in 1:(ps.p-1)  ){
 	VIM<-combn( names(ps)[-1],i) 
@@ -161,9 +162,9 @@ ps.crit[which(ps.crit$ps.R2ap > .6 ),]
 ps.crit[which(	(ps.crit$ps.counts-2) < ps.crit$ps.cp &
 			 ps.crit$ps.cp  < (ps.crit$ps.counts+2)	) , ]
 
+par(mfrow=c(2,2))
 
-plot(ps.crit[,1],ps.crit[,3])
-
+plot(ps.crit[,1],ps.crit[,3], xlab="p", ylab="R2ap")
    lines(unique(ps.crit[,1])[1:2], c(
 	max( ps.crit[which(ps.crit[,1]== 2) , 3] ) ,
 	max( ps.crit[which(ps.crit[,1]== 3) , 3] ) ))
@@ -171,11 +172,29 @@ plot(ps.crit[,1],ps.crit[,3])
 	max( ps.crit[which(ps.crit[,1] == 3) , 3] ) ,
 	max( ps.crit[which(ps.crit[,1] == 4) , 3] ) )	)
 
+plot(ps.crit[,1],ps.crit[,4], xlab="p", ylab="AIC")
+   lines(unique(ps.crit[,1])[1:2], c(
+	min( ps.crit[which(ps.crit[,1]== 2) , 4] ) ,
+	min( ps.crit[which(ps.crit[,1]== 3) , 4] ) ))
+    lines(unique(ps.crit[,1])[2:3], c(
+	min( ps.crit[which(ps.crit[,1] == 3) , 4] ) ,
+	min( ps.crit[which(ps.crit[,1] == 4) , 4] ) )	)
 
+plot(ps.crit[,1],ps.crit[,5], xlab="p", ylab="Cp")
+   lines(unique(ps.crit[,1])[1:2], c(
+	min( ps.crit[which(ps.crit[,1]== 2) , 5] ) ,
+	min( ps.crit[which(ps.crit[,1]== 3) , 5] ) ))
+    lines(unique(ps.crit[,1])[2:3], c(
+	min( ps.crit[which(ps.crit[,1] == 3) , 5] ) ,
+	min( ps.crit[which(ps.crit[,1] == 4) , 5] ) )	)
 
-plot(ps.crit[,1],ps.crit[,4])
-plot(ps.crit[,1],ps.crit[,5])
-plot(ps.crit[,1],ps.crit[,6])
+plot(ps.crit[,1],ps.crit[,6], xlab="p", ylab="PRESSp")
+   lines(unique(ps.crit[,1])[1:2], c(
+	min( ps.crit[which(ps.crit[,1]== 2) , 6] ) ,
+	min( ps.crit[which(ps.crit[,1]== 3) , 6] ) ))
+    lines(unique(ps.crit[,1])[2:3], c(
+	min( ps.crit[which(ps.crit[,1] == 3) , 6] ) ,
+	min( ps.crit[which(ps.crit[,1] == 4) , 6] ) )	)
 
 
   null= lm(Y ~ 1, data=ps)
@@ -186,4 +205,29 @@ full <- (lm(Y~.,ps))
 #would be computationally feasible, and I don't think forward stepwise
 #regression has any advantages here
 
+#10.11
+ps.n<-nrow(ps)
+ps.Y<-as.matrix(ps[,1])
+ps.X<-as.matrix( data.frame(1,ps[,2:ncol(ps)]) )
+ps.H<-ps.X %*% solve(t(ps.X)%*%ps.X) %*% t(ps.X)
+ps.ee<-(diag(ps.n)-ps.H) %*% ps.Y
+as.vector(ps.ee)
+ps.p<-dim(ps.X)[2]
+ps.SSE<-anova((lm(Y~.,ps)))[[2]][ps.p]
+ 
+#a
+ps.ti<-ps.ee*sqrt( ( ps.n-ps.p-1 )/ (ps.SSE*(1-diag(ps.H)) - (ps.ee)^2 ) )
+ps.alpha<-.1
+qt(1-(ps.alpha/(2*ps.n)), ps.n-ps.p-1)
+all((abs(ps.ti) < qt(1-(ps.alpha/(2*ps.n)), ps.n-ps.p-1)) == T)
+#Conclude no outliers
 
+#b
+diag(ps.H)
+which(diag(ps.H) > sum(diag(ps.H))*2/ps.n)
+diag(ps.H)[which(diag(ps.H) > sum(diag(ps.H))*2/ps.n)]
+#These three observations exceed the criterion of twice 
+#the mean leverage value
+
+#c
+ps.X[which(diag(ps.H) > sum(diag(ps.H))*2/ps.n),]

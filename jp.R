@@ -56,10 +56,28 @@ for(i in 1:(jp.p-1)  ){
 
 jp.crit<-data.frame(jp.counts,jp.variables,jp.R2ap, jp.aic, jp.cp,jp.press)
  
+     jp.crit[ which(jp.crit[,3] > .9) ,1:3]
+
 
 null= lm(Y ~ 1, data=jp)
 full <- (	lm(Y~.,jp)	)
 step(null, scope=list(lower=null, upper=full), direction="forward")
 
+
+jp.mat<-data.matrix(jp)
+colnames(jp.mat)<-NULL
+
+jp.X<-matrix(NA,nrow(jp),5)
+jp.X[,1]<-1
+jp.X[,2:5]<-jp.mat[,2:5]
+
+jp.X
+
+jp.H<- jp.X	%*% solve(t(jp.X) %*%	jp.X) %*% t(jp.X)
+
+jp.e<-(diag(nrow(jp))-jp.H) %*% jp.mat[,1]
+
+jp.sse<- t(jp.e)  %*% jp.e
+ anova(	lm(Y~.,jp)	)
 
 
