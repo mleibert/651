@@ -9,7 +9,7 @@ ps<-read.table("patientsatisfaction.txt")
 head(ps)
 colnames(ps)<-c("Y","X1","X2","X3" )
 
-pairs(ps)
+pairs(ps[,-1])
 cor(ps[,-1])
 
 lm(ps[,1]~ps[,2]+ps[,3]+ps[,4]+ps[,5])

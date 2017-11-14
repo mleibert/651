@@ -9,7 +9,7 @@ cp<-read.table("CommercialProperties.txt")
 head(cp)
 colnames(cp)<-c("Y","X1","X2","X3" ,"X4")
 
-pairs(cp)
+pairs(cp[,-1])
 cor(cp[,-1])
 
 lm(cp[,1]~cp[,2]+cp[,3]+cp[,4]+cp[,5])
