@@ -5,12 +5,19 @@
 #pairs of predictor variables in the correlation matrix rxx. These are 
 #signs that there is multicollinearity among the X variables.
 
-
+rm(list=ls())
+options(stringsAsFactors = FALSE) 
+options(scipen=999) 
 
  
-summary(lm(ps$X1~ps$X2+ps$X3))$r.squared 
-summary(lm(ps$X2~ps$X1+ps$X3))$r.squared
-summary(lm(ps$X3~ps$X1+ps$X2))$r.squared
+setwd("G:/math/651")
+
+ps<-read.table("patientsatisfaction.txt")
+head(ps)
+colnames(ps)<-c("Y","X1","X2","X3" )
+
+pairs(ps[,-1])
+cor(ps[,-1])
 
 (1- summary(lm(ps$X1~ps$X2+ps$X3))$r.squared)^(-1)
 (1- summary(lm(ps$X2~ps$X1+ps$X3))$r.squared)^(-1)
@@ -48,11 +55,9 @@ options(scipen=999)
 setwd("G:/math/651")
 
 ms<-read.table("MachineSpeed.txt")
-head(ms)
 colnames(ms)<-c("Y","X1" )
 
 summary(lm(ms$Y~ms$X))$residuals
-
 plot(ms$X,summary(lm(ms$Y~ms$X))$residuals)
 
 (anova(lm(summary(lm(ms$Y~ms$X))$residuals^2~ ms$X))[[2]][1]/2)/
@@ -65,7 +70,8 @@ pchisq(1.660443,1)
 plot(ms$X,(summary(lm(ms$Y~ms$X))$residuals)^2)
 
 ms.ee<-summary(lm(ms$Y~ms$X))$residuals^2
- 
+ lm(ms.ee ~ms$X)
+
  summary(lm(ms.ee ~ms$X)) 
 
 1/ (  -180.0833 +   1.2437 *ms$X )
@@ -74,10 +80,8 @@ ms.X<-matrix(ms$X,length(ms$X),2);ms.X[,1]<-1
 ms.Y<-matrix(ms$Y,length(ms$Y),1)
 ms.W<-matrix(0,length(ms$Y),length(ms$Y))
 diag(ms.W)<-1/ (  -180.0833 +   1.2437 *ms$X )
-
-
-
 solve(t(ms.X)%*%ms.W %*% ms.X)%*%t(ms.X)%*%ms.W%*%ms.Y
+
 
 ####
 
