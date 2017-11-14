@@ -42,22 +42,33 @@ solve(t(bf.X) %*% bf.X)  %*% t(bf.X) %*% bf.Y
 
 
 
-bf.bR<-list()
-bf.R2<-list()
-
-C<-seq(0,.01,.002)
+head(bf)
 
 
+sd(bf$X1)
+sd(bf$X2)
+sd(bf$X3)
 
-for ( i in 1:length(C)){
-	bf.bR[[i]]<-solve(bf.rxx+C[i]*diag(dim( bf.rxx )[1] )) %*% bf.ryx
+bflist<-list()
+for (i in 1:ncol(bf) ){
+	bflist[[i]]<-(1/( sqrt(bf.n - 1)))*((bf[,i ] -mean(bf[,i ]) ) /
+		 sd(bf[,i ]) )}
 
-	SSR<-t(bf.Y )%*% bf.Y - t(bf.bR[[i]])  %*% t(bf.X ) %*% bf.Y 
-	SSTO<-t(bf.Y )%*% bf.Y - (1/bf.n)*t(bf.Y )%*% bf.J%*% bf.Y
-	bf.R2[[i]]<-1-(SSR/SSTO)
- }
+bft<-data.frame( bflist[[1]], bflist[[2]],bflist[[3]],bflist[[4]])
+
+colnames(bft)<-c("Y","X1","X2","X3"  )
+
+#resids
+bft.n<-nrow(bft)
+bft.Y<-as.matrix(bft[,1])
+bft.X<-as.matrix( data.frame(bft[,2:ncol(bft)]) )
+bft.H<-bft.X %*% solve(t(bft.X)%*%bft.X) %*% t(bft.X)
+bft.ee<-(diag(bft.n)-bft.H) %*% bft.Y
+bft.p<-dim(bft.X)[2]
+
+bft.rxx<-t(bft.X) %*% bft.X
+bft.ryx<-t(bft.X) %*% bft.Y
 
 
+solve(bft.rxx +1*diag( dim(bft.rxx)[1] ) ) %*% bft.ryx
 
-solve(bf.rxx+ C[2]*diag(dim(bf.rxx)[1] ))  %*% bf.rxx  %*% 
-solve(bf.rxx+ C[2]*diag(dim(bf.rxx)[1] )) 
