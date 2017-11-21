@@ -97,4 +97,40 @@ sum(anova(lm(Y ~ X[,1]+ X[,2]   ))[ (prod.r ),3])
 
 qf(1-.05,prod.r-1,prod.n-prod.r)
 
+#####
+par(pin=c(1,1))
+plot(1:prod.r,unique(Ybar),col="blue",pch=16)
+lines(1:prod.r, unique(Ybar)  , col='red')
+
+
+prod.MSE<-anova(lm(Y ~ X[,1]+ X[,2]   ))[3,2]
+prod.n<-rep(NA,max(prod$X1))
+for(i in 1:max(prod$X1)){prod.n[i]<-max(prod[which(prod$X1==i),3])}
+
+unique(Ybar)
+
+prod.T<-qtukey(1-.1,prod.r,nrow(prod)-prod.r)*(1/sqrt(2))
+prod.list<-list()
+
+for ( i in 1:ncol(combn(1:prod.r, 2))){
+	mu<-c(unique(Ybar)[combn(1:prod.r, 2)[,i][1]],
+		unique(Ybar)[combn(1:prod.r, 2)[,i][2]])
+	Dhat<-max(mu)-min(mu)
+	
+	ssD<-prod.MSE*(1/(prod.n[combn(1:prod.r, 2)[,i][1]]) +
+		(1/ (prod.n[combn(1:prod.r, 2)[,i][2]])  ))
+	sqrt(ssD)
+	prod.list[[i]]<-data.frame(round(Dhat-prod.T*sqrt(ssD),3),
+	paste0("(",round(max(mu),2),"-",round(min(mu),2),")-",
+		round(prod.T,2),"(",round(sqrt(ssD),2),")"),
+	paste0("mu_", combn(1:prod.r, 2)[,i][ which(mu == max(mu))], "-mu_",
+	combn(1:prod.r, 2)[,i][ which(mu == min(mu))] ),
+	paste0("(",round(max(mu),2),"-",round(min(mu),2),")-",
+		round(prod.T,2),"(",	round(sqrt(ssD),2),")"),
+	round(Dhat+prod.T*sqrt(ssD),3)	)
+	colnames(prod.list[[i]])<-c("","","","","")
+}
+
+prod.list<-do.call("rbind", prod.list)
+prod.list
 

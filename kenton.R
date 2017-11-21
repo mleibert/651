@@ -58,3 +58,34 @@ anova(lm(Y ~ X[,1]+ X[,2]+ X[,3]  ))
 
 sum(anova(lm(Y ~ X[,1]+ X[,2]+ X[,3]  ))[1:3,3])/3
 
+
+kenton.MSE<-anova(lm(Y ~ X[,1]+ X[,2]+ X[,3]  ))[4,3]
+kenton.n<-rep(NA,max(kenton$X1))
+for(i in 1:max(kenton$X1)){kenton.n[i]<-max(kenton[which(kenton$X1==i),3])}
+
+unique(Ybar)
+
+kenton.T<-qtukey(1-.1,4,15)*(1/sqrt(2))
+kenton.list<-list()
+
+for ( i in 1:6){
+	mu<-c(unique(Ybar)[combn(1:4, 2)[,i][1]],
+		unique(Ybar)[combn(1:4, 2)[,i][2]])
+	Dhat<-max(mu)-min(mu)
+	
+	ssD<-kenton.MSE*(1/(kenton.n[combn(1:4, 2)[,i][1]]) +
+		(1/ (kenton.n[combn(1:4, 2)[,i][2]])  ))
+	sqrt(ssD)
+	kenton.list[[i]]<-data.frame(round(Dhat-kenton.T*sqrt(ssD),3),
+	paste0("(",max(mu),"-",min(mu),")-",round(kenton.T,2),"(",
+			round(sqrt(ssD),2),")"),
+	paste0("mu_", combn(1:4, 2)[,i][ which(mu == max(mu))], "-mu_",
+	combn(1:4, 2)[,i][ which(mu == min(mu))] ),
+	paste0("(",max(mu),"-",min(mu),")-",round(kenton.T,2),"(",
+		round(sqrt(ssD),2),")"),
+	round(Dhat+kenton.T*sqrt(ssD),3)	)
+	colnames(kenton.list[[i]])<-c("","","","","")
+}
+
+kenton.list<-do.call("rbind", kenton.list)
+
