@@ -7,7 +7,7 @@ names(prod)<-c("Y","X1","X2")
 tail(prod)
 
 par(mfrow=c(1,3))
-boxplot(prod[which(prod[2] == 1),1])
+boxplot(prod[which(prod[2] == 1),1],ylim=c(5,10))
 boxplot(prod[which(prod[2] == 2),1])
 boxplot(prod[which(prod[2] == 3),1])
 
@@ -104,8 +104,9 @@ lines(1:prod.r, unique(Ybar)  , col='red')
 
 
 prod.MSE<-anova(lm(Y ~ X[,1]+ X[,2]   ))[3,2]
-prod.n<-rep(NA,max(prod$X1))
-for(i in 1:max(prod$X1)){prod.n[i]<-max(prod[which(prod$X1==i),3])}
+prod.n<-rep(NA,max(as.numeric(prod$X1)))
+for(i in 1:max(as.numeric(prod$X1))){prod.n[i]<-
+	max(prod[which(prod$X1==i),3])}
 
 unique(Ybar)
 
@@ -131,6 +132,4 @@ for ( i in 1:ncol(combn(1:prod.r, 2))){
 	colnames(prod.list[[i]])<-c("","","","","")
 }
 
-prod.list<-do.call("rbind", prod.list)
-prod.list
-
+TukeyHSD(	aov(prod$Y ~ prod$X1 ),	conf.level = 0.9) 
