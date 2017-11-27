@@ -28,12 +28,16 @@ for (i in 1:3){
 	E[which(prod[,2] == i),1]<-prod[which(prod[,2] == i),1]-B[i,1]
 }
 
+aov(lm())
+
 options(scipen=999)
 (X%*%B+E) 
 sum(E)
 
 prod$X1<-as.factor(prod$X1)
-anova(lm(prod$Y~prod$X1))
+anova(lm(prod$Y~prod$X1)) 
+
+aov(prod$Y~prod$X1)$fitted
 
 ## Check anova
 n<-mu<-rep(NA,3)
@@ -133,3 +137,10 @@ for ( i in 1:ncol(combn(1:prod.r, 2))){
 }
 
 TukeyHSD(	aov(prod$Y ~ prod$X1 ),	conf.level = 0.9) 
+
+
+#####
+
+plot(aov(Y~X1,data=prod)$fitted,aov(Y~X1,data=prod)$residuals)
+qqnorm(aov(Y~X1,data=prod)$residuals); 
+
