@@ -22,10 +22,10 @@ unique( round(as.vector (aov(Y~(X1),data=cash)$fitted ),4))
 dat<-data.frame(((as.vector(aov(Y~(X1),data=cash)$residuals)^2)),cash$X1)
 cash.ss<-rep(NA,max(as.vector(dat[,2]) ))
 
-
 for (i in 1:max(as.vector(dat[,2]) ) ){
 	cash.ss[i]<-(sum(dat[which(dat[,2] == i),1]))/
 		(length(dat[which(dat[,2] == i),1])-1)}
+sqrt(cash.ss)
 
 require("SuppDists")
 
@@ -33,7 +33,9 @@ cash.alpha<-.01
 qmaxFratio(1-cash.alpha,	max(as.vector(cash$X2))-1	,
 	as.numeric(max(as.vector(cash$X1)))		)
 
-qmaxFratio(1-.01,11,3)
+max(cash.ss)/min(cash.ss)
+
+pmaxFratio( max(cash.ss)/min(cash.ss) ,11,3)
 
 
 
