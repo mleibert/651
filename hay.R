@@ -15,14 +15,14 @@ head(hay)
 
 mean(hay[1:4,1])
 
+interaction.plot(hay[,3], hay[,2], hay[,1]   )
+
 plot(hay.fv,as.vector(hay.e))
 qqnorm(as.vector(hay.e))
 
 
-plot(1:3,	unique(round(as.vector((((aov(hay[,1]~ 
-	as.factor(hay[,2]) )$fitted)))),4)),col="blue",pch=16)
-lines(1:3, unique(round(as.vector((((aov(hay[,1]~ 
-	as.factor(hay[,2]) )$fitted)))),4))  , col='red')
+plot(1:9,	unique(round(as.vector(hay.fv),4))	)
+lines(1:9,	unique(round(as.vector(hay.fv),4))	)
 
 aov(hay[,1]~ as.factor(hay[,2]) * as.factor(hay[,3]))
 anova(lm(hay[,1]~ as.factor(hay[,2]) * as.factor(hay[,3])))
